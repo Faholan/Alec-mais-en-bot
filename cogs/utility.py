@@ -74,8 +74,8 @@ class Utility(commands.Cog):
                 else:
                     await ctx.send("Unrecognized sign !")
             else:
+                prompt = prompt[match.end():]
                 positive = match.group(1) == "+"
-            prompt = prompt[match.end():]
 
         await ctx.send(f"Rolled a **{total}** ({' '.join(detailed)[1:]})")
 
