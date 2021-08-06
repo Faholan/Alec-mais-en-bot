@@ -27,10 +27,7 @@ SOFTWARE.
 def setup(bot):
     """Add all the data to the bot."""
     bot.extensions_list = [
-        "bin.error",
-        "bin.help",
-        "cogs.owner",
-        "cogs.utility"
+        "bin.error", "bin.help", "cogs.owner", "cogs.utility"
     ]
     if bot.first_on_ready:
         # Discord configuration
