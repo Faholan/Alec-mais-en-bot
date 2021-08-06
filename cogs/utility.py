@@ -81,13 +81,16 @@ class Utility(commands.Cog):
     @commands.Cog.listener()
     async def ckwalip(self, message: discord.Message) -> None:
         """Send the IP."""
+        if message.author.bot:
+            return
+
         words = frozenset(message.content.lower().split(" "))
 
-        if any(
+        if any((
                 any(word in words for word in ("ip", "ip?"))
                 and any(word in words for word in ("ckwa", "kwa", "quoi")),
                 "ckwalip" in message.content,
-        ):
+        )):
             await message.reply(self.bot.ckwalip)
 
 
