@@ -25,6 +25,7 @@ import typing as t
 from asyncio import all_tasks
 
 import aiohttp
+
 # import asyncpg
 import discord
 from discord.ext import commands
@@ -82,9 +83,7 @@ class AlecMaisEnBot(commands.Bot):
 
     async def on_ready(self) -> None:
         """Operations processed when the bot's ready."""
-        await self.change_presence(
-            activity=discord.Game("a!help"),
-        )
+        await self.change_presence(activity=discord.Game("a!help"), )
         if self.first_on_ready:
             self.first_on_ready = False
 
