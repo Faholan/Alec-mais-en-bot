@@ -37,10 +37,12 @@ def setup(bot):
 
         bot.log_channel_id = 00000000000000000
 
+        bot.guild_id = 0
+
         # bot.postgre_connection = {
         #     "user": "user",
-        #     "password": "password",
-        #     "database": "chaotic",
+        #     "password": "alec_mais_en_password",
+        #     "database": "alec",
         #     "host": "127.0.0.1",
         #     "port": 5432,
         # }

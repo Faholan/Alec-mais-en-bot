@@ -44,7 +44,8 @@ class AlecMaisEnBot(commands.Bot):
         invites=False,
         voice_states=True,
         presences=False,
-        messages=True,
+        guild_messages=True,
+        dm_messages=False,
         reactions=True,
         typing=False,
     )
@@ -70,6 +71,8 @@ class AlecMaisEnBot(commands.Bot):
 
         self.extensions_list: t.List[str] = []
 
+        self.guild_id = 0
+
         self.cwkalip = "127.0.0.1:9999"
 
         super().__init__(
@@ -85,7 +88,12 @@ class AlecMaisEnBot(commands.Bot):
 
     async def on_ready(self) -> None:
         """Operations processed when the bot's ready."""
-        await self.change_presence(activity=discord.Game("a!help"), )
+        await self.change_presence(activity=discord.Game("a!help"))
+
+        for guild in self.guilds:
+            if guild.id != self.guild_id:
+                await guild.leave()
+
         if self.first_on_ready:
             self.first_on_ready = False
 
@@ -207,6 +215,11 @@ class AlecMaisEnBot(commands.Bot):
         )
         await self.log_channel.send(embed=embed)
         await ctx.send(embed=embed)
+
+    async def on_guild_join(self, guild: discord.Guild) -> None:
+        """Leave unauthorized guilds."""
+        if guild.id != self.guild_id:
+            await guild.leave()
 
     async def httpcat(
         self,
