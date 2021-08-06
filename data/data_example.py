@@ -54,3 +54,5 @@ def setup(bot):
         }
 
         bot.http.user_agent = "alec_mais_en_user_agent"
+
+        bot.ckwalip = "127.0.0.1:9999"

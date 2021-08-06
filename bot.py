@@ -70,6 +70,8 @@ class AlecMaisEnBot(commands.Bot):
 
         self.extensions_list: t.List[str] = []
 
+        self.cwkalip = "127.0.0.1:9999"
+
         super().__init__(
             command_prefix="a!",
             intents=self.used_intents,
