@@ -77,7 +77,7 @@ class Utility(commands.Cog):
                 prompt = prompt[match.end():]
                 positive = match.group(1) == "+"
 
-        await ctx.send(f"Rolled a **{total}** ({' '.join(detailed)[1:]})")
+        await ctx.send(f"Rolled a **{total}** ({' '.join(detailed)[2:]})")
 
     @commands.Cog.listener()
     async def ckwalip(self, message: discord.Message) -> None:
