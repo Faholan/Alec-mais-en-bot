@@ -75,8 +75,9 @@ class Utility(commands.Cog):
                     await ctx.send("Unrecognized sign !")
             else:
                 positive = match.group(1) == "+"
+            prompt = prompt[match.end():]
 
-        await ctx.send(f"Rolled a **{total}** ({' '.join(detailed)})")
+        await ctx.send(f"Rolled a **{total}** ({' '.join(detailed)[1:]})")
 
     @commands.Cog.listener()
     async def ckwalip(self, message: discord.Message) -> None:
