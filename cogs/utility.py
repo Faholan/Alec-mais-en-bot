@@ -84,10 +84,9 @@ class Utility(commands.Cog):
         words = frozenset(message.content.lower().split(" "))
 
         if any(
-            any(
-                word in words for word in ("ip", "ip?")
-            ) and any(word in words for word in ("ckwa", "kwa", "quoi")),
-            "ckwalip" in message.content
+                any(word in words for word in ("ip", "ip?"))
+                and any(word in words for word in ("ckwa", "kwa", "quoi")),
+                "ckwalip" in message.content,
         ):
             await message.reply(self.bot.ckwalip)
 
