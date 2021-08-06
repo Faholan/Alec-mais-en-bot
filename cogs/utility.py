@@ -79,7 +79,7 @@ class Utility(commands.Cog):
 
         await ctx.send(f"Rolled a **{total}** ({' '.join(detailed)[2:]})")
 
-    @commands.Cog.listener()
+    @commands.Cog.listener("on_message")
     async def ckwalip(self, message: discord.Message) -> None:
         """Send the IP."""
         if message.author.bot:
@@ -88,9 +88,9 @@ class Utility(commands.Cog):
         words = frozenset(message.content.lower().split(" "))
 
         if any((
-                any(word in words for word in ("ip", "ip?"))
+                any(word in words for word in ("ip", "ip?", "l'ip", "l'ip?"))
                 and any(word in words for word in ("ckwa", "kwa", "quoi")),
-                "ckwalip" in message.content,
+                "ckwalip" in message.content.lower(),
         )):
             await message.reply(self.bot.ckwalip)
 
