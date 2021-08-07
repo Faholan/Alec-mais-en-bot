@@ -214,24 +214,27 @@ class Connect4(menus.Menu):
         await self.start(ctx, wait=True)
         return self.winner
 
+
 # The minesweeper is under the AGPL version 3 or any later version. Copyright Amelia Coutard.
 class Minesweeper(menus.Menu):
     def __init__(self, difficulty):
-        if difficulty == 'easy':
+        if difficulty == "easy":
             self.width = 8
             self.height = 8
-            self.bomb_count = 10;
-        elif difficulty == 'medium':
+            self.bomb_count = 10
+        elif difficulty == "medium":
             self.width = 16
             self.height = 16
-            self.bomb_count = 40;
-        elif difficulty == 'hard':
+            self.bomb_count = 40
+        elif difficulty == "hard":
             self.width = 32
             self.height = 32
-            self.bomb_count = 99;
+            self.bomb_count = 99
 
-        self.board = [[0 for j in range(self.width)] for i in range(self.height)]
-        self.revealed = [[False for j in range(self.width)] for i in range(self.height)]
+        self.board = [[0 for j in range(self.width)]
+                      for i in range(self.height)]
+        self.revealed = [[False for j in range(self.width)]
+                         for i in range(self.height)]
         self.x = self.width // 2
         self.y = self.height // 2
 
@@ -250,15 +253,19 @@ class Minesweeper(menus.Menu):
                         bombs += 1
                     if y > 0 and self.board[y - 1][x] == -1:
                         bombs += 1
-                    if x < self.width - 1 and y > 0 and self.board[y - 1][x + 1] == -1:
+                    if x < self.width - 1 and y > 0 and self.board[y -
+                                                                   1][x +
+                                                                      1] == -1:
                         bombs += 1
                     if x < self.width - 1 and self.board[y][x + 1] == -1:
                         bombs += 1
-                    if x < self.width - 1 and y < self.height - 1 and self.board[y + 1][x + 1] == -1:
+                    if (x < self.width - 1 and y < self.height - 1
+                            and self.board[y + 1][x + 1] == -1):
                         bombs += 1
                     if y < self.height - 1 and self.board[y + 1][x] == -1:
                         bombs += 1
-                    if x > 0 and y < self.height - 1 and self.board[y + 1][x - 1] == -1:
+                    if x > 0 and y < self.height - 1 and self.board[y + 1][
+                            x - 1] == -1:
                         bombs += 1
                     if x > 0 and self.board[y][x - 1] == -1:
                         bombs += 1
@@ -266,52 +273,55 @@ class Minesweeper(menus.Menu):
         self.failed = False
 
     async def play(self, ctx):
-        await self.start(ctx, wait=True);
+        await self.start(ctx, wait=True)
         if self.failed:
-            return 'Ha, you failed !'
-        return 'End of game.'
+            return "Ha, you failed !"
+        return "End of game."
 
     async def send_initial_message(self, ctx, channel):
         return await channel.send(self.render())
 
-    @menus.button('←')
+    @menus.button("←")
     async def on_left(self, payload):
         if self.x > 0:
             self.x -= 1
         await self.message.edit(self.render())
-    @menus.button('↑')
+
+    @menus.button("↑")
     async def on_up(self, payload):
         if self.y > 0:
             self.y -= 1
         await self.message.edit(self.render())
-    @menus.button('→')
+
+    @menus.button("→")
     async def on_right(self, payload):
         if self.x < self.width - 1:
             self.x += 1
         await self.message.edit(self.render())
-    @menus.button('↓')
+
+    @menus.button("↓")
     async def on_down(self, payload):
         if self.y < self.height - 1:
             self.y += 1
         await self.message.edit(self.render())
 
-    @menus.button('🚩')
+    @menus.button("🚩")
     async def on_flag(self, payload):
         self.revealed[y][x] = 2
         await self.message.edit(self.render())
 
-    @menus.button('\N{PICK}')
+    @menus.button("\N{PICK}")
     async def on_hole(self, payload):
         if self.board[self.y][self.x] == -1:
             self.failed = True
             self.stop()
             return
         self.revealed[y][x] = 1
-        if (self.board[self.y][self.x] == 0):
+        if self.board[self.y][self.x] == 0:
             self.propagate(self.x, self.y)
         await self.message.edit(self.render())
 
-    @menus.button('\N{BLACK SQUARE FOR STOP}\ufe0f')
+    @menus.button("\N{BLACK SQUARE FOR STOP}\ufe0f")
     async def on_stop(self, payload):
         self.stop()
 
@@ -334,20 +344,30 @@ class Minesweeper(menus.Menu):
                 self.propagate(x, y + 1)
 
     def render(self):
-        result = ''
+        result = ""
         for y, row in enumerate(zip(self.board, self.revealed)):
             for x, cell in enumerate(zip(row[0], row[1])):
                 if x == self.x and y == self.y:
-                    result += ':purple_square:'
+                    result += ":purple_square:"
                 elif cell[1] == 0:
-                    result += ':brown_square:'
+                    result += ":brown_square:"
                 elif cell[1] == 1:
-                    result += [':black_large_square:',':one:',':two:',':three:',':four:',':five:',':six:',':seven:',':eight:',':bomb:'][cell[0]]
+                    result += [
+                        ":black_large_square:",
+                        ":one:",
+                        ":two:",
+                        ":three:",
+                        ":four:",
+                        ":five:",
+                        ":six:",
+                        ":seven:",
+                        ":eight:",
+                        ":bomb:",
+                    ][cell[0]]
                 elif cell[1] == 2:
-                    result += ':triangular_flag_on_post:'
-            result += '\n'
+                    result += ":triangular_flag_on_post:"
+            result += "\n"
         return result
-
 
 
 class Games(commands.Cog):
@@ -390,7 +410,7 @@ class Games(commands.Cog):
 
         mine = Minesweeper(difficulty)
         end_message = await mine.play(ctx)
-        await ctx.send(end_message);
+        await ctx.send(end_message)
 
 
 def setup(bot: commands.Bot) -> None:
