@@ -269,12 +269,10 @@ class Minesweeper(menus.Menu):
 
     async def play(self, ctx):
         await self.start(ctx, wait=True);
-        self.x = -1
-        self.y = -1
         if self.failed:
-            self.message.edit(self.render() + 'HA, you failed !')
+            ctx.send('HA, you failed !')
         else:
-            self.message.edit(self.render() + 'Congrats !')
+            ctx.send('Congrats !')
 
     async def send_initial_message(self, ctx, _):
         return await ctx.send(self.render())
