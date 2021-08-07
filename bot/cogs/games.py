@@ -339,7 +339,7 @@ class Minesweeper(menus.Menu):
                 self.propagate(x, y + 1)
 
     def render(self):
-        result = ''
+        result = '```'
         for y, row in enumerate(zip(self.board, self.revealed)):
             for x, cell in enumerate(zip(row[0], row[1])):
                 if x == self.x and y == self.y:
@@ -351,6 +351,7 @@ class Minesweeper(menus.Menu):
                 elif cell[1] == 2:
                     result += '🚩'
             result += '\n'
+        result += '```'
         return result
 
 
