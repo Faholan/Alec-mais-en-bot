@@ -243,7 +243,7 @@ class Minesweeper(menus.Menu):
                 y = randint(0, self.height - 1)
             self.board[y][x] = -1
         for y, row in enumerate(self.board):
-            for x, cell in enumerate(self.board):
+            for x, cell in enumerate(row):
                 if cell != -1:
                     bombs = 0
                     if x > 0 and y > 0 and self.board[y - 1][x - 1] == -1:
