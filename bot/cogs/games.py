@@ -276,22 +276,22 @@ class Minesweeper(menus.Menu):
     async def send_initial_message(self, ctx, _):
         return await ctx.send(self.render())
 
-    @menus.button('←')
+    @menus.button('\N{LEFTWARDS BLACK ARROW}')
     async def on_left(self, _):
         if self.x > 0:
             self.x -= 1
         await self.message.edit(self.render())
-    @menus.button('↑')
+    @menus.button('\N{UPWARDS BLACK ARROW}')
     async def on_up(self, _):
         if self.y > 0:
             self.y -= 1
         await self.message.edit(self.render())
-    @menus.button('→')
+    @menus.button('\N{BLACK RIGHTWARDS ARROW}')
     async def on_right(self, _):
         if self.x < self.width - 1:
             self.x += 1
         await self.message.edit(self.render())
-    @menus.button('↓')
+    @menus.button('\N{DOWNWARDS BLACK ARROW}')
     async def on_down(self, _):
         if self.y < self.height - 1:
             self.y += 1
