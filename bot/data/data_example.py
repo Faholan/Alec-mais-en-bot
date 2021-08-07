@@ -29,6 +29,7 @@ def setup(bot):
     bot.extensions_list = [
         "bin.error",
         "bin.help",
+        "cogs.admin",
         "cogs.games",
         "cogs.owner",
         "cogs.utility",
@@ -40,6 +41,8 @@ def setup(bot):
         bot.log_channel_id = 00000000000000000
 
         bot.guild_id = 0
+
+        bot.admins = []
 
         # bot.postgre_connection = {
         #     "user": "user",
