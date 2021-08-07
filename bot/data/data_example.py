@@ -41,6 +41,8 @@ def setup(bot):
 
         bot.guild_id = 0
 
+        bot.admins = []
+
         # bot.postgre_connection = {
         #     "user": "user",
         #     "password": "alec_mais_en_password",

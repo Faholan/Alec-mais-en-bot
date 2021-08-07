@@ -125,4 +125,4 @@ dmypy.json
 .pyre/
 
 # My exclusions
-data/data.py
+data.py

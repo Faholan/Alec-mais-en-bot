@@ -26,9 +26,10 @@ from asyncio import all_tasks
 
 import aiohttp
 
-# import asyncpg
 import discord
 from discord.ext import commands
+
+from . import sh
 
 
 class AlecMaisEnBot(commands.Bot):
@@ -61,6 +62,8 @@ class AlecMaisEnBot(commands.Bot):
         # self.pool: asyncpg.pool.Pool = None
         # self.postgre_connection: t.Dict[str, t.Any] = {}
         # PostgreSQL connection
+
+        self.admins: t.List[int] = []
 
         self.aio_session: aiohttp.ClientSession = None
         # Used for all internet fetches
@@ -286,10 +289,24 @@ class AlecMaisEnBot(commands.Bot):
         )
         return payload.emoji.name == "\U00002705"
 
+    async def shell(self, ctx, argument: str):
+        with sh.ShellReader(argument) as reader:
+            prefix = "```" + reader.highlight
+
+            paginator = sh.WrappedPaginator(prefix=prefix, max_size=1975)
+            paginator.add_line(f"{reader.ps1} {argument}\n")
+
+            interface = sh.PaginatorInterface(
+                self, paginator, owner=ctx.author)
+            self.loop.create_task(interface.send_to(ctx))
+
+            async for line in reader:
+                if interface.closed:
+                    return
+                await interface.add_line(line)
+
+        await interface.add_line(f"\n[status] Return code {reader.close_code}")
+
     def launch(self) -> None:
         """Launch the bot."""
         self.run(self.token)
-
-
-if __name__ == "__main__":
-    AlecMaisEnBot().launch()  # Run if not imported

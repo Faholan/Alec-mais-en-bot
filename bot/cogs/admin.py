@@ -1,71 +1,48 @@
-"""MIT License.
+"""Admin commands.
 
-Copyright (c) 2020-2021 Faholan
+Copyright (C) 2021  Faholan
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-
-import asyncio
-import io
-import textwrap
-import traceback
-import typing as t
-from contextlib import redirect_stdout
 
 import discord
 from discord.ext import commands
 
 
-class OwnerError(commands.CheckFailure):
+class AdminError(commands.CheckFailure):
     """Error specific to this cog."""
 
 
-class Owner(commands.Cog, command_attrs={"help": "Owner command"}):
-    """Owner-specific commands."""
+class Admin(commands.Cog):
+    """Admin-only commands."""
 
     def __init__(self, bot: commands.Bot) -> None:
-        """Initialize Owner."""
+        """Initialize the cog."""
         self.bot = bot
-        self._last_result = None
-        self._stat_conn: t.Any = None
-        self._stat_lock: t.Any = None
-
-    @staticmethod
-    def cleanup_code(content: str) -> str:
-        """Automatically removes code blocks from the code."""
-        # remove ```py\n```
-        if content.startswith("```") and content.endswith("```"):
-            return "\n".join(content.split("\n")[1:-1])
-
-        # remove `foo`
-        return content.strip("` \n")
 
     async def cog_check(self, ctx: commands.Context) -> bool:
         """Decide if you can run the command."""
         if await ctx.bot.is_owner(ctx.author):
             return True
-        raise OwnerError()
+        if ctx.author.id in self.bot.admins:
+            return True
+        raise AdminError()
 
     async def cog_command_error(self, ctx: commands.Context,
                                 error: Exception) -> None:
         """Call that on error."""
-        if isinstance(error, OwnerError):
+        if isinstance(error, AdminError):
             await ctx.bot.httpcat(
                 ctx,
                 401,
@@ -73,65 +50,6 @@ class Owner(commands.Cog, command_attrs={"help": "Owner command"}):
             )
             return
         raise error
-
-    def cog_unload(self):
-        """Do some cleanup."""
-        if self._stat_conn:
-            asyncio.create_task(self.bot.pool.release(self._stat_conn))
-        self.bot.remove_listener(self.stats_listener)
-
-    @commands.command(name="eval")
-    async def _eval(self, ctx: commands.Context, *, body: str) -> None:
-        """Evaluate a Python code."""
-        env = {
-            "bot": self.bot,
-            "ctx": ctx,
-            "channel": ctx.channel,
-            "author": ctx.author,
-            "guild": ctx.guild,
-            "message": ctx.message,
-            "_": self._last_result,
-        }
-
-        env.update(globals())
-
-        body = self.cleanup_code(body)
-        stdout = io.StringIO()
-
-        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
-
-        try:
-            exec(to_compile, env)
-        except Exception as error:
-            await ctx.send(f"```py\n{error.__class__.__name__}: {error}\n```")
-            return
-
-        func = env["func"]
-        try:
-            with redirect_stdout(stdout):
-                ret = await func()
-        except Exception:
-            value = stdout.getvalue()
-            await ctx.send(f"```py\n{value}{traceback.format_exc()}\n```")
-        else:
-            value = stdout.getvalue()
-            try:
-                await ctx.message.add_reaction("\u2705")
-            except discord.DiscordException:
-                pass
-
-            if ret is None:
-                if value:
-                    await ctx.send(f"```py\n{value}\n```")
-            else:
-                self._last_result = ret
-                await ctx.send(f"```py\n{value}{ret}\n```")
-
-    @commands.command(ignore_extra=True)
-    async def logout(self, ctx: commands.Context) -> None:
-        """Kill the bot."""
-        await ctx.send("Logging out...")
-        await self.bot.close()
 
     @commands.command(ignore_extra=True)
     async def load(self, ctx: commands.Context, *extensions) -> None:
@@ -171,6 +89,17 @@ class Owner(commands.Cog, command_attrs={"help": "Owner command"}):
         )
         await self.bot.log_channel.send(embed=embed)
         await ctx.send(embed=embed)
+
+    @commands.command(ignore_extra=True)
+    async def logout(self, ctx: commands.Context) -> None:
+        """Kill the bot."""
+        await ctx.send("Logging out...")
+        await self.bot.close()
+
+    @commands.command()
+    async def pull(self, ctx: commands.Context) -> None:
+        """Pull the code from the remote repo."""
+        await self.bot.shell(ctx, "git pull")
 
     @commands.command()
     async def reload(self, ctx: commands.Context, *extensions) -> None:
@@ -212,5 +141,5 @@ class Owner(commands.Cog, command_attrs={"help": "Owner command"}):
 
 
 def setup(bot: commands.Bot) -> None:
-    """Load the Owner cog."""
-    bot.add_cog(Owner(bot))
+    """Load the admin cog."""
+    bot.add_cog(Admin(bot))
