@@ -310,17 +310,23 @@ class AlecMaisEnBot(commands.Bot):
     def load_extension(
             self, name: str, *, package: t.Optional[str] = None) -> None:
         """Load an extension."""
-        super().load_extension(f"bot.{name}", package=package)
+        if not name.startswith("bot."):
+            name = f"bot.{name}"
+        super().load_extension(name, package=package)
 
     def unload_extension(
             self, name: str, *, package: t.Optional[str] = None) -> None:
         """Unload an extension."""
-        super().unload_extension(f"bot.{name}", package=package)
+        if not name.startswith("bot."):
+            name = f"bot.{name}"
+        super().unload_extension(name, package=package)
 
     def reload_extension(
             self, name: str, *, package: t.Optional[str] = None) -> None:
         """Reload an extension."""
-        super().reload_extension(f"bot.{name}", package=package)
+        if not name.startswith("bot."):
+            name = f"bot.{name}"
+        super().reload_extension(name, package=package)
 
     def launch(self) -> None:
         """Launch the bot."""
