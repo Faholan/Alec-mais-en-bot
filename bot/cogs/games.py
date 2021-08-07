@@ -283,27 +283,27 @@ class Minesweeper(menus.Menu):
     async def on_left(self, _):
         if self.x > 0:
             self.x -= 1
-        await self.message.edit(self.render())
+        await self.message.edit(content=self.render())
     @menus.button('\N{UPWARDS BLACK ARROW}')
     async def on_up(self, _):
         if self.y > 0:
             self.y -= 1
-        await self.message.edit(self.render())
+        await self.message.edit(content=self.render())
     @menus.button('\N{BLACK RIGHTWARDS ARROW}')
     async def on_right(self, _):
         if self.x < self.width - 1:
             self.x += 1
-        await self.message.edit(self.render())
+        await self.message.edit(content=self.render())
     @menus.button('\N{DOWNWARDS BLACK ARROW}')
     async def on_down(self, _):
         if self.y < self.height - 1:
             self.y += 1
-        await self.message.edit(self.render())
+        await self.message.edit(content=self.render())
 
     @menus.button('🚩')
     async def on_flag(self, _):
         self.revealed[self.y][self.x] = 2
-        await self.message.edit(self.render())
+        await self.message.edit(content=self.render())
 
     @menus.button('\N{PICK}')
     async def on_hole(self, _):
@@ -314,7 +314,7 @@ class Minesweeper(menus.Menu):
         self.revealed[self.y][self.x] = 1
         if (self.board[self.y][self.x] == 0):
             self.propagate(self.x, self.y)
-        await self.message.edit(self.render())
+        await self.message.edit(content=self.render())
 
     @menus.button('\N{BLACK SQUARE FOR STOP}\ufe0f')
     async def on_stop(self, _):
