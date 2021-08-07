@@ -25,7 +25,6 @@ import typing as t
 from asyncio import all_tasks
 
 import aiohttp
-
 import discord
 from discord.ext import commands
 
@@ -296,8 +295,9 @@ class AlecMaisEnBot(commands.Bot):
             paginator = sh.WrappedPaginator(prefix=prefix, max_size=1975)
             paginator.add_line(f"{reader.ps1} {argument}\n")
 
-            interface = sh.PaginatorInterface(
-                self, paginator, owner=ctx.author)
+            interface = sh.PaginatorInterface(self,
+                                              paginator,
+                                              owner=ctx.author)
             self.loop.create_task(interface.send_to(ctx))
 
             async for line in reader:
