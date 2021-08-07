@@ -214,6 +214,7 @@ class Connect4(menus.Menu):
         await self.start(ctx, wait=True)
         return self.winner
 
+
 class Games(commands.Cog):
     """Good games."""
 
