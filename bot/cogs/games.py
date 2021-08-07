@@ -395,7 +395,7 @@ class Games(commands.Cog):
 
         mine = Minesweeper(difficulty)
         ending = await mine.play(ctx)
-        ctx.send(ending)
+        await ctx.send(ending)
 
 
 def setup(bot: commands.Bot) -> None:
