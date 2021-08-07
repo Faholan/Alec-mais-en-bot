@@ -308,9 +308,9 @@ class AlecMaisEnBot(commands.Bot):
         await interface.add_line(f"\n[status] Return code {reader.close_code}")
 
     def load_extension(
-            self, name: str, package: t.Optional[str] = None) -> None:
+            self, name: str, *, package: t.Optional[str] = None) -> None:
         """Load an extension."""
-        super().load_extension(f"bot.{name}", package)
+        super().load_extension(f"bot.{name}", package=package)
 
     def launch(self) -> None:
         """Launch the bot."""
