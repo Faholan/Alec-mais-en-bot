@@ -185,9 +185,6 @@ class PaginatorInterface:  # pylint: disable=too-many-instance-attributes
 
         self.message = await destination.send(**self.send_kwargs)
 
-        # add the close reaction
-        await self.message.add_reaction(self.emojis["close"])
-
         self.send_lock.set()
 
         if self.task:
