@@ -343,13 +343,13 @@ class Minesweeper(menus.Menu):
         for y, row in enumerate(zip(self.board, self.revealed)):
             for x, cell in enumerate(zip(row[0], row[1])):
                 if x == self.x and y == self.y:
-                    result += ':purple_square:'
+                    result += 'XX'
                 elif cell[1] == 0:
-                    result += ':brown_square:'
+                    result += '██'
                 elif cell[1] == 1:
-                    result += [':black_large_square:',':one:',':two:',':three:',':four:',':five:',':six:',':seven:',':eight:',':bomb:'][cell[0]]
+                    result += ['  ','1 ','2 ','3 ','4 ','5 ','6 ','7 ','8 ','  '][cell[0]]
                 elif cell[1] == 2:
-                    result += ':triangular_flag_on_post:'
+                    result += '🚩'
             result += '\n'
         return result
 
