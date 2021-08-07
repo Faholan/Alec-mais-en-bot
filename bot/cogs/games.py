@@ -269,9 +269,12 @@ class Minesweeper(menus.Menu):
 
     async def play(self, ctx):
         await self.start(ctx, wait=True);
+        self.x = -1
+        self.y = -1
         if self.failed:
-            return 'Ha, you failed !'
-        return 'End of game.'
+            self.message.edit(self.render() + 'HA, you failed !')
+        else:
+            self.message.edit(self.render() + 'Congrats !')
 
     async def send_initial_message(self, ctx, _):
         return await ctx.send(self.render())
@@ -391,8 +394,7 @@ class Games(commands.Cog):
             return
 
         mine = Minesweeper(difficulty)
-        end_message = await mine.play(ctx)
-        await ctx.send(end_message);
+        await mine.play(ctx)
 
 
 def setup(bot: commands.Bot) -> None:
