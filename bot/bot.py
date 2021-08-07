@@ -307,18 +307,24 @@ class AlecMaisEnBot(commands.Bot):
 
         await interface.add_line(f"\n[status] Return code {reader.close_code}")
 
-    def load_extension(
-            self, name: str, *, package: t.Optional[str] = None) -> None:
+    def load_extension(self,
+                       name: str,
+                       *,
+                       package: t.Optional[str] = None) -> None:
         """Load an extension."""
         super().load_extension(f"bot.{name}", package=package)
 
-    def unload_extension(
-            self, name: str, *, package: t.Optional[str] = None) -> None:
+    def unload_extension(self,
+                         name: str,
+                         *,
+                         package: t.Optional[str] = None) -> None:
         """Unload an extension."""
         super().unload_extension(f"bot.{name}", package=package)
 
-    def reload_extension(
-            self, name: str, *, package: t.Optional[str] = None) -> None:
+    def reload_extension(self,
+                         name: str,
+                         *,
+                         package: t.Optional[str] = None) -> None:
         """Reload an extension."""
         super().reload_extension(f"bot.{name}", package=package)
 
