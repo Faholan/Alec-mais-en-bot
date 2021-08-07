@@ -217,6 +217,7 @@ class Connect4(menus.Menu):
 # The minesweeper is under the AGPL version 3 or any later version. Copyright Amelia Coutard.
 class Minesweeper(menus.Menu):
     def __init__(self, difficulty):
+        super().__init__();
         if difficulty == 'easy':
             self.width = 8
             self.height = 8
