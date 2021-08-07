@@ -214,25 +214,144 @@ class Connect4(menus.Menu):
         await self.start(ctx, wait=True)
         return self.winner
 
+# The minesweeper is under the AGPL version 3 or any later version. Copyright Amelia Coutard.
+class Minesweeper(menus.Menu):
+    def __init__(self, difficulty):
+        if difficulty == 'easy':
+            self.width = 8
+            self.height = 8
+            self.bomb_count = 10;
+        elif difficulty == 'medium':
+            self.width = 16
+            self.height = 16
+            self.bomb_count = 40;
+        elif difficulty == 'hard':
+            self.width = 32
+            self.height = 32
+            self.bomb_count = 99;
+
+        self.board = [[0 for j in range(self.width)] for i in range(self.height)]
+        self.revealed = [[False for j in range(self.width)] for i in range(self.height)]
+        self.x = self.width // 2
+        self.y = self.height // 2
+
+        for i in range(self.bomb_count):
+            x = randint(0, self.width - 1)
+            y = randint(0, self.height - 1)
+            while self.board[y][x] == -1:
+                x = randint(0, self.width - 1)
+                y = randint(0, self.height - 1)
+            self.board[y][x] = -1
+        for y, row in enumerate(self.board):
+            for x, cell in enumerate(self.board):
+                if cell != -1:
+                    bombs = 0
+                    if x > 0 and y > 0 and self.board[y - 1][x - 1] == -1:
+                        bombs += 1
+                    if y > 0 and self.board[y - 1][x] == -1:
+                        bombs += 1
+                    if x < self.width - 1 and y > 0 and self.board[y - 1][x + 1] == -1:
+                        bombs += 1
+                    if x < self.width - 1 and self.board[y][x + 1] == -1:
+                        bombs += 1
+                    if x < self.width - 1 and y < self.height - 1 and self.board[y + 1][x + 1] == -1:
+                        bombs += 1
+                    if y < self.height - 1 and self.board[y + 1][x] == -1:
+                        bombs += 1
+                    if x > 0 and y < self.height - 1 and self.board[y + 1][x - 1] == -1:
+                        bombs += 1
+                    if x > 0 and self.board[y][x - 1] == -1:
+                        bombs += 1
+
+        self.failed = False
+
+    async def play(self, ctx):
+        await self.start(ctx, wait=True);
+        if self.failed:
+            return 'Ha, you failed !'
+        return 'End of game.'
+
+    async def send_initial_message(self, ctx, channel):
+        return await channel.send(self.render())
+
+    @menus.button('←')
+    async def on_left(self, payload):
+        if self.x > 0:
+            self.x -= 1
+        await self.message.edit(self.render())
+    @menus.button('↑')
+    async def on_up(self, payload):
+        if self.y > 0:
+            self.y -= 1
+        await self.message.edit(self.render())
+    @menus.button('→')
+    async def on_right(self, payload):
+        if self.x < self.width - 1:
+            self.x += 1
+        await self.message.edit(self.render())
+    @menus.button('↓')
+    async def on_down(self, payload):
+        if self.y < self.height - 1:
+            self.y += 1
+        await self.message.edit(self.render())
+
+    @menus.button('🚩')
+    async def on_flag(self, payload):
+        self.revealed[y][x] = 2
+        await self.message.edit(self.render())
+
+    @menus.button('\N{PICK}')
+    async def on_hole(self, payload):
+        if self.board[self.y][self.x] == -1:
+            self.failed = True
+            self.stop()
+            return
+        self.revealed[y][x] = 1
+        if (self.board[self.y][self.x] == 0):
+            self.propagate(self.x, self.y)
+        await self.message.edit(self.render())
+
+    @menus.button('\N{BLACK SQUARE FOR STOP}\ufe0f')
+    async def on_stop(self, payload):
+        self.stop()
+
+    def propagate(self, x, y):
+        if x > 0 and self.revealed[y][x - 1] != 1:
+            self.revealed[y][x - 1] = 1
+            if self.board[y][x - 1] == 0:
+                self.propagate(x - 1, y)
+        if x < self.width - 1 and self.revealed[y][x + 1] != 1:
+            self.revealed[y][x + 1] = 1
+            if self.board[y][x + 1] == 0:
+                self.propagate(x + 1, y)
+        if y > 0 and self.revealed[y - 1][x] != 1:
+            self.revealed[y - 1][x] = 1
+            if self.board[y - 1][x] == 0:
+                self.propagate(x, y - 1)
+        if y < self.height - 1 and self.revealed[y + 1][x] != 1:
+            self.revealed[y + 1][x] = 1
+            if self.board[y + 1][x] == 0:
+                self.propagate(x, y + 1)
+
+    def render(self):
+        result = ''
+        for y, row in enumerate(zip(self.board, self.revealed)):
+            for x, cell in enumerate(zip(row[0], row[1])):
+                if x == self.x and y == self.y:
+                    result += ':purple_square:'
+                elif cell[1] == 0:
+                    result += ':brown_square:'
+                elif cell[1] == 1:
+                    result += [':black_large_square:',':one:',':two:',':three:',':four:',':five:',':six:',':seven:',':eight:',':bomb:'][cell[0]]
+                elif cell[1] == 2:
+                    result += ':triangular_flag_on_post:'
+            result += '\n'
+        return result
+
+
 
 class Games(commands.Cog):
     """Good games."""
-
-    mine_difficulty = {  # mines, rows, columns
-        "easy": (10, 8, 8),
-        "medium": (40, 16, 16),
-        "hard": (99, 32, 16),
-    }
-
-    mine_emoji = [
-        "||" + str(i) +
-        "\N{variation selector-16}\N{combining enclosing keycap}||"
-        for i in range(9)
-    ] + [
-        "0\N{variation selector-16}\N{combining enclosing keycap}",
-        # revealed zero
-        "||\U0001f4a3||",  # bomb
-    ]
 
     def __init__(self, bot: commands.Bot) -> None:
         """Initialize Games."""
@@ -256,29 +375,6 @@ class Games(commands.Cog):
         else:
             await ctx.send("Game cancelled")
 
-    @staticmethod
-    def neighbours(i: int, j: int, rows: int,
-                   columns: int) -> t.List[t.Tuple[int, int]]:
-        """Get a cell's neighbours for minesweeper."""
-        final = []
-        if i != 0:
-            final.append((i - 1, j))
-        if i != rows - 1:
-            final.append((i + 1, j))
-        if j != 0:
-            final.append((i, j - 1))
-        if j != columns - 1:
-            final.append((i, j + 1))
-        if 0 not in {i, j}:
-            final.append((i - 1, j - 1))
-        if i != rows - 1 and j != columns - 1:
-            final.append((i + 1, j + 1))
-        if i != 0 and j != columns - 1:
-            final.append((i - 1, j + 1))
-        if i != rows - 1 and j != 0:
-            final.append((i + 1, j - 1))
-        return final
-
     @commands.command(aliases=["mines"])
     async def minesweeper(self, ctx: commands.Context, difficulty="easy"):
         """Play minesweeper in Discord.
@@ -292,33 +388,9 @@ class Games(commands.Cog):
                 "difficulty must be one of `easy`, `medium` or `hard`")
             return
 
-        mines, rows, columns = self.mine_difficulty[difficulty]
-        grid = [[0 for _ in range(columns)] for _ in range(rows)]
-        click_x, click_y = randint(0, rows - 1), randint(0, columns - 1)
-        grid[click_x][click_y] = -2
-        i, j = click_x, click_y
-        for _ in range(mines):
-            while grid[i][j] < 0 or (abs(click_x - i) <= 1
-                                     and abs(click_y - j) <= 1):
-                i, j = randint(0, rows - 1), randint(0, columns - 1)
-            grid[i][j] = -1
-            for x, y in self.neighbours(i, j, rows, columns):
-                if grid[x][y] != -1:
-                    grid[x][y] += 1
-
-        max_len = 99 // columns
-
-        content = "\n".join([
-            " ".join([self.mine_emoji[num] for num in row])
-            for row in grid[:max_len]
-        ])
-        await ctx.send(f"Total number of mines: {mines}\n\n{content}")
-        if rows * columns > 99:
-            for i in range(1, (rows * columns) // 99):
-                await ctx.send("\n".join([
-                    " ".join([self.mine_emoji[num] for num in row])
-                    for row in grid[max_len * i:max_len * (i + 1)]
-                ]))
+        mine = Minesweeper(difficulty)
+        end_message = await mine.play(ctx)
+        await ctx.send(end_message);
 
 
 def setup(bot: commands.Bot) -> None:
