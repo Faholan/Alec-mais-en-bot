@@ -29,6 +29,7 @@ def setup(bot):
     bot.extensions_list = [
         "bin.error",
         "bin.help",
+        "cogs.admin",
         "cogs.games",
         "cogs.owner",
         "cogs.utility",
