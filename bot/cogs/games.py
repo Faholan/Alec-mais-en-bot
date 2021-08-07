@@ -349,7 +349,7 @@ class Minesweeper(menus.Menu):
                 elif cell[1] == 1:
                     result += ['  ','1 ','2 ','3 ','4 ','5 ','6 ','7 ','8 ','  '][cell[0]]
                 elif cell[1] == 2:
-                    result += '🚩'
+                    result += '▶ '
             result += '\n'
         result += '```'
         return result
