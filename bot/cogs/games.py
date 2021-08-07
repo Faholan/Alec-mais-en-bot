@@ -235,7 +235,7 @@ class Minesweeper(menus.Menu):
         self.x = self.width // 2
         self.y = self.height // 2
 
-        for i in range(self.bomb_count):
+        for _ in range(self.bomb_count):
             x = randint(0, self.width - 1)
             y = randint(0, self.height - 1)
             while self.board[y][x] == -1:
@@ -262,6 +262,7 @@ class Minesweeper(menus.Menu):
                         bombs += 1
                     if x > 0 and self.board[y][x - 1] == -1:
                         bombs += 1
+                    self.board[y][x] = bombs
 
         self.failed = False
 
@@ -271,48 +272,48 @@ class Minesweeper(menus.Menu):
             return 'Ha, you failed !'
         return 'End of game.'
 
-    async def send_initial_message(self, ctx, channel):
-        return await channel.send(self.render())
+    async def send_initial_message(self, ctx, _):
+        return await ctx.send(self.render())
 
     @menus.button('←')
-    async def on_left(self, payload):
+    async def on_left(self, _):
         if self.x > 0:
             self.x -= 1
         await self.message.edit(self.render())
     @menus.button('↑')
-    async def on_up(self, payload):
+    async def on_up(self, _):
         if self.y > 0:
             self.y -= 1
         await self.message.edit(self.render())
     @menus.button('→')
-    async def on_right(self, payload):
+    async def on_right(self, _):
         if self.x < self.width - 1:
             self.x += 1
         await self.message.edit(self.render())
     @menus.button('↓')
-    async def on_down(self, payload):
+    async def on_down(self, _):
         if self.y < self.height - 1:
             self.y += 1
         await self.message.edit(self.render())
 
     @menus.button('🚩')
-    async def on_flag(self, payload):
-        self.revealed[y][x] = 2
+    async def on_flag(self, _):
+        self.revealed[self.y][self.x] = 2
         await self.message.edit(self.render())
 
     @menus.button('\N{PICK}')
-    async def on_hole(self, payload):
+    async def on_hole(self, _):
         if self.board[self.y][self.x] == -1:
             self.failed = True
             self.stop()
             return
-        self.revealed[y][x] = 1
+        self.revealed[self.y][self.x] = 1
         if (self.board[self.y][self.x] == 0):
             self.propagate(self.x, self.y)
         await self.message.edit(self.render())
 
     @menus.button('\N{BLACK SQUARE FOR STOP}\ufe0f')
-    async def on_stop(self, payload):
+    async def on_stop(self, _):
         self.stop()
 
     def propagate(self, x, y):
