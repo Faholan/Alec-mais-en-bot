@@ -118,13 +118,11 @@ class Help(commands.HelpCommand):
                                   t.List[commands.Command]]) -> None:
         """Send the global help."""
         ctx = self.context
-        prefix = discord.utils.escape_markdown(
-            await ctx.bot.get_m_prefix(None, ctx.message, False), )
         pages = menus.MenuPages(
             source=HelpSource(
                 self.get_command_signature,
                 self.filter_commands,
-                prefix,
+                ctx.prefix,
                 ctx.author,
                 mapping,
             ),
@@ -135,13 +133,11 @@ class Help(commands.HelpCommand):
     async def send_cog_help(self, cog: commands.Cog) -> None:
         """Send help for a cog."""
         ctx = self.context
-        prefix = discord.utils.escape_markdown(
-            await ctx.bot.get_m_prefix(None, ctx.message, False), )
         embed = discord.Embed(
             title=cog.qualified_name,
             description=textwrap.dedent(f"""
                 Help syntax : `<Required argument>`. `[Optional argument]`
-                Command prefix: `{prefix}`
+                Command prefix: `{ctx.prefix}`
                 {cog.description}
                 """),
             colour=discord.Colour.blue(),
@@ -153,7 +149,7 @@ class Help(commands.HelpCommand):
         embed.set_thumbnail(url=str(ctx.bot.user.avatar_url))
         for command in await self.filter_commands(cog.get_commands()):
             embed.add_field(
-                name=f"{prefix}{self.get_command_signature(command)}",
+                name=f"{ctx.prefix}{self.get_command_signature(command)}",
                 value=command.help,
                 inline=False,
             )
@@ -166,10 +162,8 @@ class Help(commands.HelpCommand):
     async def send_command_help(self, command: commands.Command) -> None:
         """Send help for a command."""
         ctx = self.context
-        prefix = discord.utils.escape_markdown(
-            await ctx.bot.get_m_prefix(None, ctx.message, False), )
         embed = discord.Embed(
-            title=f"{prefix}{self.get_command_signature(command)}",
+            title=f"{ctx.prefix}{self.get_command_signature(command)}",
             description=("Help syntax : `<Required argument>`. "
                          f"`[Optional argument]`\n{command.help}"),
             colour=discord.Colour.blue(),
@@ -196,10 +190,8 @@ class Help(commands.HelpCommand):
     async def send_group_help(self, group: commands.Group) -> None:
         """Send help for a group."""
         ctx = self.context
-        prefix = discord.utils.escape_markdown(
-            await ctx.bot.get_m_prefix(None, ctx.message, False), )
         embed = discord.Embed(
-            title=(f"Help for group {prefix}"
+            title=(f"Help for group {ctx.prefix}"
                    f"{self.get_command_signature(group)}"),
             description=("Help syntax : `<Required argument>`. "
                          f"`[Optional argument]`\n{group.help}"),
@@ -207,7 +199,7 @@ class Help(commands.HelpCommand):
         )
         for command in await self.filter_commands(group.commands, sort=True):
             embed.add_field(
-                name=f"{prefix}{self.get_command_signature(command)}",
+                name=f"{ctx.prefix}{self.get_command_signature(command)}",
                 value=command.help,
                 inline=False,
             )
