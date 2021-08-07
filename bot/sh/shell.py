@@ -1,6 +1,5 @@
 """Adapted from Jishaku."""
 
-
 import asyncio
 import os
 import re
@@ -15,15 +14,18 @@ def background_reader(stream, loop: asyncio.AbstractEventLoop, callback):
     Reads a stream and forwards each line to an async callback.
     """
 
-    for line in iter(stream.readline, b''):
+    for line in iter(stream.readline, b""):
         loop.call_soon_threadsafe(loop.create_task, callback(line))
 
 
 class ShellReader:
     """Passively reads from a shell and buffers results for read."""
 
-    def __init__(self, code: str, timeout: int = 120, loop: asyncio.AbstractEventLoop = None):
-        sequence = [SHELL, '-c', code]
+    def __init__(self,
+                 code: str,
+                 timeout: int = 120,
+                 loop: asyncio.AbstractEventLoop = None):
+        sequence = [SHELL, "-c", code]
         self.ps1 = "$"
         self.highlight = "sh"
 
@@ -65,14 +67,14 @@ class ShellReader:
                 stream,
                 self.loop,
                 callback,
-            ),
-        )
+            ), )
 
     @staticmethod
     def clean_bytes(line):
         """Clean a byte sequence of shell directives and decode it."""
         text = line.decode("utf-8").replace("\r", "").strip("\n")
-        return re.sub(r"\x1b[^m]*m", "", text).replace("``", "`\u200b`").strip("\n")
+        return re.sub(r"\x1b[^m]*m", "", text).replace("``",
+                                                       "`\u200b`").strip("\n")
 
     async def stdout_handler(self, line):
         """Handle stdout."""
