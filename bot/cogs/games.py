@@ -280,9 +280,9 @@ class Minesweeper(menus.Menu):
             self.x -= 1
         await self.message.edit(self.render())
     @menus.button('↑')
+    async def on_up(self, payload):
         if self.y > 0:
             self.y -= 1
-    async def on_up(self, payload):
         await self.message.edit(self.render())
     @menus.button('→')
     async def on_right(self, payload):
