@@ -25,10 +25,23 @@ import traceback
 import typing as t
 from datetime import datetime
 from itertools import cycle
-from random import randint
+from random import choice, randint, shuffle
 
 import discord
 from discord.ext import commands, menus
+
+
+COLORS = (
+    "\U0001f534",
+    "\U0001f535",
+    "\U0001f7e4",
+    "\U0001f7e3",
+    "\U0001f7e2",
+    "\U0001f7e0"
+)
+
+BLACK = "\U000026ab"
+WHITE = "\U000026aa"
 
 
 class Connect4(menus.Menu):
@@ -213,6 +226,172 @@ class Connect4(menus.Menu):
         """Start it the real way."""
         await self.start(ctx, wait=True)
         return self.winner
+
+
+class Mastermind(menus.Menu):
+    """Play Mastermind."""
+
+    def __init__(self, tries: int, **kwargs) -> None:
+        """Initialize the mastermind."""
+        clear_reactions_after = kwargs.pop("clear_reactions_after", True)
+        self.max_tries = tries
+        self.cur_try = 1
+        self.lines: t.List[str] = []
+        self.length = kwargs.pop("length", 4)
+        self.secret = [choice(COLORS) for _ in range(self.length)]
+        self.current: t.List[str] = []
+        self.finished = False
+        super().__init__(clear_reactions_after=clear_reactions_after, **kwargs)
+
+    async def send_initial_message(self, ctx, channel) -> discord.Message:
+        """Send the first message."""
+        self.lines.append(
+            f"{ctx.author.mention}'s Mastermind "
+            "(Turn {cur}/{total})"
+        )
+        return await channel.send(self.content)
+
+    @property
+    def content(self) -> str:
+        """Get the current message content."""
+        return "\n".join(
+            self.lines + ["".join(self.current)]
+        ).format(cur=self.cur_try, total=self.max_tries)
+
+    async def on_menu_button_error(self, exc) -> None:
+        """Manage exceptions."""
+        embed = discord.Embed(colour=0xFF0000)
+        embed.set_author(
+            name=str(self.ctx.author),
+            icon_url=str(self.ctx.author.avatar_url),
+        )
+        embed.title = f"{self.ctx.author.id} caused an error in connect 4"
+        embed.description = f"{type(exc).__name__} : {exc}"
+        embed.description += (
+            f"\nin {self.ctx.channel.name} "
+            f"({self.ctx.channel.id})")
+
+        formatted_tb = "".join(traceback.format_tb(exc.__traceback__))
+        embed.description += f"```\n{formatted_tb}```"
+        embed.set_footer(
+            text="Alec mais en logger",
+            icon_url=self.ctx.bot.user.avatar_url_as(static_format="png"),
+        )
+        embed.timestamp = datetime.utcnow()
+        try:
+            await self.bot.log_channel.send(embed=embed)
+        except Exception:
+            await self.bot.log_channel.send(
+                "Please check the logs for Mastermind")
+            raise exc from None
+
+    async def dot(self, color: str) -> None:
+        """Add a colored dot."""
+        if self.finished:
+            return
+        if len(self.current) < self.length:
+            self.current.append(color)
+            await self.message.edit(content=self.content)
+
+    @menus.button("\U0001f534")
+    async def red(self, _: discord.RawReactionActionEvent) -> None:
+        """Add a red dot."""
+        await self.dot("\U0001f534")
+
+    @menus.button("\U0001f535")
+    async def blue(self, _: discord.RawReactionActionEvent) -> None:
+        """Add a blue dot."""
+        await self.dot("\U0001f535")
+
+    @menus.button("\U0001f7e4")
+    async def brown(self, _: discord.RawReactionActionEvent) -> None:
+        """Add a brown dot."""
+        await self.dot("\U0001f7e4")
+
+    @menus.button("\U0001f7e3")
+    async def purple(self, _: discord.RawReactionActionEvent) -> None:
+        """Add a purple dot."""
+        await self.dot("\U0001f7e3")
+
+    @menus.button("\U0001f7e2")
+    async def green(self, _: discord.RawReactionActionEvent) -> None:
+        """Add a green dot."""
+        await self.dot("\U0001f7e2")
+
+    @menus.button("\U0001f7e0")
+    async def orange(self, _: discord.RawReactionActionEvent) -> None:
+        """Add an orange dot."""
+        await self.dot("\U0001f7e0")
+
+    @menus.button("\N{BLACK LEFT-POINTING TRIANGLE}\U0000fe0f")
+    async def rollback(self, _: discord.RawReactionActionEvent) -> None:
+        """Delete the last dot."""
+        if self.finished:
+            return
+        if self.current:
+            self.current.pop()
+            await self.message.edit(content=self.content)
+
+    @menus.button("\U00002705")
+    async def validate(self, _: discord.RawReactionActionEvent) -> None:
+        """Try the current configuration."""
+        if self.finished:
+            False
+        if len(self.current) != 4:
+            return
+
+        start = "".join(self.current) + " " * 10
+
+        if self.current == self.secret:
+            self.finished = True
+            self.lines.append(start + BLACK * 4)
+        else:
+            current = self.current.copy()
+            secret = self.secret.copy()
+
+            result = []
+
+            i = 0
+            while i < len(current):
+                if current[i] == secret[i]:
+                    result.append(BLACK)
+                    current.pop(i)
+                    secret.pop(i)
+                else:
+                    i += 1
+            for elem in current:
+                if elem in secret:
+                    result.append(WHITE)
+                    secret.remove(elem)
+
+            shuffle(result)
+
+            self.lines.append(start + "".join(result))
+
+            if self.cur_try == self.max_try:
+                self.finished = True
+            else:
+                self.cur_try += 1
+
+        self.current = []
+        await self.message.edit(content=self.content)
+
+    @menus.button("\U0001f504")
+    async def restart(self, _: discord.RawReactionActionEvent) -> None:
+        """Restart the game."""
+        self.secret = [choice(COLORS) for _ in range(self.length)]
+        self.cur_try = 1
+
+        self.finished = False
+        self.lines = self.lines[:1]
+        self.current = []
+
+        await self.message.edit(content=self.content)
+
+    @menus.button("\N{BLACK SQUARE FOR STOP}\ufe0f")
+    async def on_stop(self, _: discord.RawReactionActionEvent) -> None:
+        """Stop."""
+        self.stop()
 
 
 # The minesweeper is under the AGPL version 3 or any later version. Copyright Amelia Coutard.
@@ -400,6 +579,22 @@ class Games(commands.Cog):
             await ctx.send(f"{winner.mention} won !")
         else:
             await ctx.send("Game cancelled")
+
+    @commands.command(aliases=["master"])
+    async def mastermind(self, ctx: commands.Context, difficulty="easy") -> None:
+        """Play Mastermind in Discord.
+
+        Difficulty may be easy (12 tries), medium (10 tries) or hard (8 tries)
+        """
+
+        difficulty = difficulty.lower().strip()
+        difficulties = {"easy": 12, "medium": 10, "hard": 8}
+        if difficulty not in difficulties:
+            await ctx.send(
+                "difficulty must be one of `easy`, `medium` or `hard`")
+            return
+
+        await Mastermind(difficulties[difficulty]).start(ctx)
 
     @commands.command(aliases=["mines"])
     async def minesweeper(self, ctx: commands.Context, difficulty="easy"):
