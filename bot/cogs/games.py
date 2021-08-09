@@ -339,6 +339,7 @@ class Mastermind(menus.Menu):
         if self.current == self.secret:
             self.finished = True
             self.lines.append(start + BLACK * 4)
+            self.lines.append("You won !")
         else:
             current = self.current.copy()
             secret = self.secret.copy()
@@ -364,6 +365,7 @@ class Mastermind(menus.Menu):
 
             if self.cur_try == self.max_tries:
                 self.finished = True
+                self.lines.append("You lost !")
             else:
                 self.cur_try += 1
 
