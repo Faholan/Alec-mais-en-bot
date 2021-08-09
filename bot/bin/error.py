@@ -212,14 +212,7 @@ async def error_manager(
     embed.title = f"{ctx.author.id} caused an error in {ctx.command}"
     embed.description = f"{type(error).__name__} : {error}"
 
-    if ctx.guild:
-        embed.description += (
-            f"\nin {ctx.guild} ({ctx.guild.id})\n   in {ctx.channel.name} "
-            f"({ctx.channel.id})")
-    elif isinstance(ctx.channel, discord.DMChannel):
-        embed.description += f"\nin a Private Channel ({ctx.channel.id})"
-    else:
-        embed.description += f"\nin the Group {ctx.channel.name} ({ctx.channel.id})"
+    embed.description += f"in {ctx.channel.name} ({ctx.channel.id})"
 
     formatted_traceback = "".join(traceback.format_tb(error.__traceback__))
     embed.description += f"```\n{formatted_traceback}```"

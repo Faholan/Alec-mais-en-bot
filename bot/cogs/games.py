@@ -59,53 +59,30 @@ class Connect4(menus.Menu):
         ]
         self.state = [[0 for _ in range(6)] for __ in range(7)]
 
-    async def update(self, payload: discord.RawReactionActionEvent) -> None:
-        """On payload, do that."""
-        button = self.buttons[payload.emoji]
-        if not self._running:
-            return
+    async def on_menu_button_error(self, exc) -> None:
+        """Manage exceptions."""
+        embed = discord.Embed(colour=0xFF0000)
+        embed.set_author(
+            name=str(self.ctx.author),
+            icon_url=str(self.ctx.author.avatar_url),
+        )
+        embed.title = f"{self.ctx.author.id} caused an error in connect 4"
+        embed.description = f"{type(exc).__name__} : {exc}"
+        embed.description += f"\nin {self.ctx.channel.name} ({self.ctx.channel.id})"
 
+        formatted_tb = "".join(traceback.format_tb(exc.__traceback__))
+        embed.description += f"```\n{formatted_tb}```"
+        embed.set_footer(
+            text="Alec mais en logger",
+            icon_url=self.ctx.bot.user.avatar_url_as(static_format="png"),
+        )
+        embed.timestamp = datetime.utcnow()
         try:
-            if button.lock:
-                async with self._lock:
-                    if self._running:
-                        await button(self, payload)
-            else:
-                await button(self, payload)
-        except Exception as error:
-            embed = discord.Embed(colour=0xFF0000)
-            embed.set_author(
-                name=str(self.ctx.author),
-                icon_url=str(self.ctx.author.avatar_url),
-            )
-            embed.title = f"{self.ctx.author.id} caused an error in connect 4"
-            embed.description = f"{type(error).__name__} : {error}"
-            if self.ctx.guild:
-                embed.description += (
-                    f"\nin {self.ctx.guild} "
-                    f"({self.ctx.guild.id})\n   in {self.ctx.channel.name} "
-                    f"({self.ctx.channel.id})")
-            elif isinstance(self.ctx.channel, discord.DMChannel):
-                embed.description += (
-                    f"\nin a Private Channel ({self.ctx.channel.id})"  # noqa
-                )
-            else:
-                embed.description += (
-                    f"\nin the Group {self.ctx.channel.name} "
-                    f"({self.ctx.channel.id})")
-            formatted_tb = "".join(traceback.format_tb(error.__traceback__))
-            embed.description += f"```\n{formatted_tb}```"
-            embed.set_footer(
-                text=f"{self.bot.user.name} Logging",
-                icon_url=self.ctx.bot.user.avatar_url_as(static_format="png"),
-            )
-            embed.timestamp = datetime.utcnow()
-            try:
-                await self.bot.log_channel.send(embed=embed)
-            except Exception:
-                await self.bot.log_channel.send(
-                    "Please check the logs for connect 4")
-                raise error from None
+            await self.bot.log_channel.send(embed=embed)
+        except Exception:
+            await self.bot.log_channel.send(
+                "Please check the logs for Connect 4")
+            raise exc from None
 
     def reaction_check(self, payload: discord.RawReactionActionEvent) -> bool:
         """Whether or not to process the payload."""
@@ -261,7 +238,7 @@ class Mastermind(menus.Menu):
             name=str(self.ctx.author),
             icon_url=str(self.ctx.author.avatar_url),
         )
-        embed.title = f"{self.ctx.author.id} caused an error in connect 4"
+        embed.title = f"{self.ctx.author.id} caused an error in Mastermind"
         embed.description = f"{type(exc).__name__} : {exc}"
         embed.description += f"\nin {self.ctx.channel.name} " f"({self.ctx.channel.id})"
 
