@@ -362,7 +362,7 @@ class Mastermind(menus.Menu):
 
             self.lines.append(start + "".join(result))
 
-            if self.cur_try == self.max_try:
+            if self.cur_try == self.max_tries:
                 self.finished = True
             else:
                 self.cur_try += 1
