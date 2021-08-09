@@ -330,7 +330,7 @@ class Mastermind(menus.Menu):
     async def validate(self, _: discord.RawReactionActionEvent) -> None:
         """Try the current configuration."""
         if self.finished:
-            False
+            return
         if len(self.current) != 4:
             return
 
