@@ -30,14 +30,13 @@ from random import choice, randint, shuffle
 import discord
 from discord.ext import commands, menus
 
-
 COLORS = (
     "\U0001f534",
     "\U0001f535",
     "\U0001f7e4",
     "\U0001f7e3",
     "\U0001f7e2",
-    "\U0001f7e0"
+    "\U0001f7e0",
 )
 
 BLACK = "\U000026ab"
@@ -245,18 +244,15 @@ class Mastermind(menus.Menu):
 
     async def send_initial_message(self, ctx, channel) -> discord.Message:
         """Send the first message."""
-        self.lines.append(
-            f"{ctx.author.mention}'s Mastermind "
-            "(Turn {cur}/{total})"
-        )
+        self.lines.append(f"{ctx.author.mention}'s Mastermind "
+                          "(Turn {cur}/{total})")
         return await channel.send(self.content)
 
     @property
     def content(self) -> str:
         """Get the current message content."""
-        return "\n".join(
-            self.lines + ["".join(self.current)]
-        ).format(cur=self.cur_try, total=self.max_tries)
+        return "\n".join(self.lines + ["".join(self.current)]).format(
+            cur=self.cur_try, total=self.max_tries)
 
     async def on_menu_button_error(self, exc) -> None:
         """Manage exceptions."""
@@ -267,9 +263,7 @@ class Mastermind(menus.Menu):
         )
         embed.title = f"{self.ctx.author.id} caused an error in connect 4"
         embed.description = f"{type(exc).__name__} : {exc}"
-        embed.description += (
-            f"\nin {self.ctx.channel.name} "
-            f"({self.ctx.channel.id})")
+        embed.description += f"\nin {self.ctx.channel.name} " f"({self.ctx.channel.id})"
 
         formatted_tb = "".join(traceback.format_tb(exc.__traceback__))
         embed.description += f"```\n{formatted_tb}```"
@@ -581,7 +575,9 @@ class Games(commands.Cog):
             await ctx.send("Game cancelled")
 
     @commands.command(aliases=["master"])
-    async def mastermind(self, ctx: commands.Context, difficulty="easy") -> None:
+    async def mastermind(self,
+                         ctx: commands.Context,
+                         difficulty="easy") -> None:
         """Play Mastermind in Discord.
 
         Difficulty may be easy (12 tries), medium (10 tries) or hard (8 tries)
