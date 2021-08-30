@@ -39,11 +39,11 @@ class Utility(commands.Cog):
         detailed = []
         positive = True
         while prompt:
-            match = self.rollre.match(prompt)
+            match = self.rollre.match(prompt.lower())
             if match is None:
                 await ctx.send("Sorry, I couldn't understand your prompt")
                 return
-            prompt = prompt[match.end():]
+            prompt = prompt[match.end():].lower()
             if "d" in match.group(1):
                 num, rawdice = match.group(1).split("d")
                 dice = int(rawdice)
